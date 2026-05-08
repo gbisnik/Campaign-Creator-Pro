@@ -6,6 +6,7 @@ import CampaignGrid from "@/components/CampaignGrid";
 import SnapshotPanel from "@/components/SnapshotPanel";
 import FileUploadPanel from "@/components/FileUploadPanel";
 import ValidationPanel from "@/components/ValidationPanel";
+import ConnectorsPanel from "@/components/ConnectorsPanel";
 import {
   Download,
   ShieldCheck,
@@ -15,10 +16,11 @@ import {
   LayoutGrid,
   AlertTriangle,
   ChevronRight,
+  Plug,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type SidePanel = "snapshots" | "upload" | "validation" | null;
+type SidePanel = "snapshots" | "upload" | "validation" | "connectors" | null;
 
 export default function App() {
   const [rows, setRows] = useState<CampaignRow[]>(() => [createEmptyRow()]);
@@ -127,6 +129,17 @@ export default function App() {
               </span>
             )}
           </button>
+          <button
+            onClick={() => togglePanel("connectors")}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 text-xs rounded transition-colors",
+              activePanel === "connectors"
+                ? "bg-blue-600 text-white"
+                : "text-slate-300 hover:bg-slate-700"
+            )}
+          >
+            <Plug className="w-3.5 h-3.5" /> Connect
+          </button>
         </div>
 
         <div className="ml-auto flex items-center gap-2">
@@ -205,6 +218,8 @@ export default function App() {
                     ? "Snapshots"
                     : activePanel === "upload"
                     ? "Import File"
+                    : activePanel === "connectors"
+                    ? "API Connectors"
                     : "Validation"}
                 </span>
                 <button
@@ -223,6 +238,18 @@ export default function App() {
                 )}
                 {activePanel === "validation" && (
                   <ValidationPanel result={validationResult} />
+                )}
+                {activePanel === "connectors" && (
+                  <ConnectorsPanel
+                    onImport={(importedRows, mode) => {
+                      if (mode === "append") {
+                        setRows((prev) => [...prev, ...importedRows]);
+                      } else {
+                        setRows(importedRows);
+                      }
+                      setActivePanel(null);
+                    }}
+                  />
                 )}
               </div>
             </aside>
